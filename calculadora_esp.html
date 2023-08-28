@@ -1,0 +1,166 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ca" lang="ca">
+<head>
+  <title>:: Calculadora del riesgo de IU ::</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+  <script src="jquery.js" type="text/javascript"></script>
+  <script src="sprintf.js" type="text/javascript"></script>
+  <script type="text/javascript">
+  //<![CDATA[
+  var mobilitat_filter=[2,20];
+  var imc_filter=[18,35];
+
+  var t_mobilitat=['Mobilidad Introital'];
+  var t_imc=['IMC'];
+
+  var t_missing=['Falta informar %1$s'];
+  var t_out_of_range=['%1$s debe estar entre %2$d y %3$d'];
+  var t_calculate=['Calcula'];
+  var t_clean=['Limpia'];
+
+  var t_output=[];
+  t_output[0]='<p>Riesgo de tener IU: <strong>%1$1.0f%%<\/strong></p>';
+  var t_output_baix=[];
+  t_output_baix[0] = '<p>Riesgo bajo.</p>';
+  var t_output_mig=[];
+  t_output_mig[0] = '<p>Riesgo medio.</p>';
+  var t_output_extra=[];
+  t_output_extra[0] = '<p>Riesgo alto. Se recomienda que una persona con este nivel de riesgo siga el programa para la prevención primaria de la IU en el embarazo.</p>';
+
+  var t_header=[];
+  t_header[0]='<h1>Calculadora IU</h1>';
+  var t_about=[]
+
+  var LANG=0;
+  $(document).ready(function(){
+    //$("#info_text").html(t_instructions[0]);
+    $('#mainForm').submit(function(){ calculate();return false });
+    $('#calculate').click(function(){ return true });
+    $('#mobilitat').change(function(){
+      var valact=this.value;
+      if(valact==''){
+        var err = sprintf(t_missing[LANG], t_mobilitat[LANG])
+        alert( err );
+        return
+      }
+      valact=valact.replace(',','.');
+      var aux=parseFloat(valact);
+      if(aux < mobilitat_filter[0] || mobilitat_filter[1] < aux ){
+        var err=sprintf(t_out_of_range[LANG],t_mobilitat[LANG], mobilitat_filter[0], mobilitat_filter[1]);
+        alert( err );
+        return
+      }});
+    $('#imc').change(function(){
+      var valact=this.value;
+      if(valact==''){
+        var err = sprintf(t_missing[LANG], t_imc[LANG])
+        alert( err );
+        return
+      }
+      valact=valact.replace(',','.');
+      var aux=parseFloat(valact);
+      if(aux < imc_filter[0] || imc_filter[1] < aux ){
+        var err=sprintf(t_out_of_range[LANG],t_imc[LANG], imc_filter[0], imc_filter[1]);
+        alert( err );
+        return
+      }});
+    $('#clean').click(function(){
+      $('#results').text('');
+      $("#mainForm input[type=radio]").attr("checked",false);
+      $("#mainForm input[type=text]").val('');
+      return false});
+    change_language();
+  });
+  function change_language(){
+    $('#lbl_mobilitat').text(t_mobilitat[LANG]+':');
+    $('#lbl_imc').text(t_imc[LANG]);
+    $('#calculate').val(t_calculate[LANG]);
+    $('#clean').text(t_clean[LANG]);
+    $('#header').html(t_header[LANG]);
+    $('#results').html("")
+  }
+  function calculate(){
+    var mobilitat=$('#mobilitat').val();
+    if(mobilitat==''){
+      var err=sprintf(t_missing[LANG],t_mobilitat[LANG]);
+      alert(err);
+      return
+    }
+    mobilitat=parseInt(mobilitat);
+    if(mobilitat < mobilitat_filter[0] || mobilitat_filter[1] < mobilitat){
+      var err=sprintf(t_out_of_range[LANG], t_mobilitat[LANG], mobilitat_filter[0], mobilitat_filter[1]);
+      alert( err );
+      return
+    }
+    var imc=$('#imc').val();
+    if(imc==''){
+      var err=sprintf(t_missing[LANG],t_imc[LANG]);
+      alert(err);
+      return
+    }
+    imc=parseFloat(imc);
+    if(imc < imc_filter[0] || imc_filter[1] < imc){
+      var err=sprintf(t_out_of_range[LANG], t_imc[LANG], imc_filter[0], imc_filter[1]);
+      alert( err );
+      return
+    }
+    if(imc < 25){
+      y =  -2.6857 + 0.1142*parseFloat(mobilitat);
+    }
+    if (25 <= imc & imc < 30){
+      y =  -2.6857 + 0.1142*parseFloat(mobilitat) + 0.1107;
+    }
+    if (30 <= imc){
+      y =  -2.6857 + 0.1142*parseFloat(mobilitat) + 1.4454;
+    }
+    var tant = Math.ceil(100.0*Math.exp(y)/(1.0 + Math.exp(y)));
+    var info = sprintf(t_output[LANG], tant);
+    if(tant < 14.5){
+      info += t_output_baix[LANG];
+    }
+    if(14.5 <= tant  & tant < 27.1){
+      info += t_output_mig[LANG];
+    }
+    if(tant >= 27.1){
+      info += t_output_extra[LANG];
+    }
+    var output='<div class="output"><h4>Risc IU<\/h4><p>'+info+'<\/p><\/div>';
+    $('#results').html(output)
+  }
+  //]]>
+  </script>
+</head>
+
+<body>
+  <div id="content">
+  <div id="header"><h1>Calculadora del riesgo de IU</h1></div>		
+  <div id="about"></div>
+  <div id="results"></div>
+  <div id="userform">
+    <form id="mainForm" action="" method="post">
+      <fieldset>
+        <table id="params" cellpadding="0" cellspacing="0">
+          <!-- canviat age per mobilitat -->
+          <tr id="pnl_mobilitat">
+            <td id="lbl_mobilitat">Mobilidad uretral introidal</td>
+            <td><input type="text" name="mobilitat" id="mobilitat" size="5" value="" /></td>
+          </tr>
+          <!-- canviat sbp per imc -->
+          <tr id="pnl_imc">
+            <td id="lbl_imc">IMC</td>
+            <td><input type="text" name="imc" id="imc" size="5" /></td>
+          </tr>
+        </table>
+        <br />				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <a href="#" id="clean">Borrar datos</a>	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="submit" id="calculate" name="calculate" value="calculate" />
+        <br />
+      </fieldset>
+      <br />
+  </form>
+  </div>
+  </div>
+</body>
+</html>
+
