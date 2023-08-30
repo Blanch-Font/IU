@@ -1,4 +1,4 @@
-body{background:#a8a8a8;font-size:14px;padding:0;margin:0;}
+body{background:#FFF2CC;font-size:14px;padding:0;margin:0;}
 #content{width:940px;padding:0;margin:0 auto;}
 
 h4{margin:0 0 8px 0;}
@@ -12,7 +12,7 @@ p{margin:0 0 10px 0;}
 
 #header{width:auto;height:112px;margin-bottom:-24px;}
 #header img{float:left;margin:8px 0 0 9px;}
-#header h1{color:#fff;font-size:22px;font-weight:normal;padding:1.8em 0 .5em 0;margin:0 0 0 200px;}
+#header h1{color:#000;font-size:22px;font-weight:normal;padding:1.8em 0 .5em 0;margin:0 0 0 200px;}
 #header p{font-weight:bold;color:#333;font-size:12px;padding:.15em 0;margin:0 0 0 200px;}
 
 #language{width:940px;height:24px;text-align:right;padding:0;margin:0px;}
